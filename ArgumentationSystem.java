@@ -40,7 +40,7 @@ public class ArgumentationSystem {
         return true;
     }
 
-    private Set<Argument> InTrans(Set<Argument> mu) {
+    public Set<Argument> InTrans(Set<Argument> mu) {
         Argument in = new Argument("null");
 
         for (Argument x : mu) {
@@ -63,7 +63,7 @@ public class ArgumentationSystem {
         return mu;
     }
 
-    private Set<Argument> UndecTrans(Set<Argument> mu) {
+    public Set<Argument> UndecTrans(Set<Argument> mu) {
         for (Argument x : mu) {
             if (x.getLabel() == Label.BLANK) {
                 x.setLabel(Label.UNDEC);
