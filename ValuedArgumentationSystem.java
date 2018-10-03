@@ -27,8 +27,17 @@ public class ValuedArgumentationSystem extends ArgumentationSystem {
         return false;
     }
 
+    public boolean pref(ValuedArgument a, ValuedArgument b) {
+        for (Valpref vp : valprefs) {
+            if(vp.a == a.getValue() && vp.b == b.getValue()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private Set<Argument> InTransVAFS(Set<Argument> mu) {
-        Argument in = new Argument("null");
+        Argument in = new ValuedArgument("null", null);
 
         for (Argument x : mu) {
             if (x.getLabel() == Label.BLANK) {
@@ -37,35 +46,63 @@ public class ValuedArgumentationSystem extends ArgumentationSystem {
                 break;
             }
         }
+
         for (Argument y : mu) {
-            if (attacks(in, y)) {
+            if (attacks(in, y) && pref((ValuedArgument) in, (ValuedArgument) y)) {
                 y.setLabel(Label.OUT);
             }
         }
         for (Argument z : mu) {
-            if (attacks(z,in) && z.getLabel() != Label.OUT) {
+            if (attacks(z,in) && z.getLabel() != Label.OUT && pref((ValuedArgument) z, (ValuedArgument) in)) {
                 z.setLabel(Label.MUST_OUT);
             }
         }
         return mu;
     }
 
-    private Set<Argument> UndecTransVAFS(Set<Argument> mu) {
-        for (Argument x : mu) {
-            if (x.getLabel() == Label.BLANK) {
-                x.setLabel(Label.UNDEC);
-                break;
-            }
-        }
-        return mu;
-    }
-
     /*
-        Based on algorithm 5 for enumerating preferred extensions for valued abstract argumentation frameworks from
+        Based on algorithm 8 for enumerating alpha-preferred extensions for valued abstract argumentation frameworks from
         "Algorithms for decision problems in argument systems under preferred semantics" Nofal, Atkinson, and Dunne
         (2014).
      */
-    public void findPreferredExtensions(Set<Set<Argument>> PEXT, Set<Argument> mu) {
+    public void findAlphaPreferredExtensions(Set<Set<Argument>> PEXT, Set<Argument> mu) {
+        if (containsLabel(mu, Label.BLANK)) {
+            Set<Argument> mu1 = new LinkedHashSet<>(mu.size());
+            Set<Argument> mu2 = new LinkedHashSet<>(mu.size());
+
+            for(Argument next : mu) {
+                mu1.add(next.clone());
+                mu2.add(next.clone());
+            }
+            findAlphaPreferredExtensions(PEXT, InTransVAFS(mu1));
+            findAlphaPreferredExtensions(PEXT, UndecTrans(mu2));
+        } else if (!containsLabel(mu, Label.MUST_OUT)) {
+            LinkedHashSet<Argument> extension = new LinkedHashSet<>();
+            for (Argument argument : mu) {
+                if (argument.getLabel().equals(Label.IN)) extension.add(argument.clone());
+            }
+            if (extension.size() > max) {
+                PEXT.clear();
+                max = extension.size();
+            }
+            if (extension.size() == max) PEXT.add(extension);
+        }
+    }
+
+    public Set<Value> getValues() {
+        return this.val;
+    }
+
+    public Set<Valpref> getValprefs() {
+        return this.valprefs;
+    }
+
+    public String toString() {
+        return "S = <A, R, V, h>,\n" +
+                "\tA = " + getArguments() + ",\n" +
+                "\tR = " + getAttacks()   + ",\n" +
+                "\tV = " + getValues()    + ",\n" +
+                "\t  = " + getValprefs();
     }
 
 }
