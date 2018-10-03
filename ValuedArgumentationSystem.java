@@ -99,10 +99,10 @@ public class ValuedArgumentationSystem extends ArgumentationSystem {
 
     public String toString() {
         return "S = <A, R, V, h>,\n" +
-                "\tA = " + getArguments() + ",\n" +
+                "\tA, h = " + getArguments() + ",\n" +
                 "\tR = " + getAttacks()   + ",\n" +
                 "\tV = " + getValues()    + ",\n" +
-                "\t  = " + getValprefs();
+                "\tVP  = " + getValprefs();
     }
 
 }
