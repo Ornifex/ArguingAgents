@@ -31,7 +31,7 @@ public class ArgumentationSystem {
         return false;
     }
 
-    private boolean isConflictFree(Set<Argument> set) {
+    public boolean isConflictFree(Set<Argument> set) {
         for (Argument a : set) {
             for (Argument b : set) {
                 if (attacks(a,b) || attacks(b,a)) return false;
@@ -55,6 +55,7 @@ public class ArgumentationSystem {
                 y.setLabel(Label.OUT);
             }
         }
+
         for (Argument z : mu) {
             if (attacks(z,in) && z.getLabel() != Label.OUT) {
                 z.setLabel(Label.MUST_OUT);
@@ -95,11 +96,13 @@ public class ArgumentationSystem {
                 for (Argument argument : mu) {
                     if (argument.getLabel().equals(Label.IN)) extension.add(argument.clone());
                 }
-                if (extension.size() > max) {
-                    PEXT.clear();
-                    max = extension.size();
+                if (isConflictFree(extension)) {
+                    if (extension.size() > max) {
+                        PEXT.clear();
+                        max = extension.size();
+                    }
+                    if (extension.size() == max) PEXT.add(extension);
                 }
-                if (extension.size() == max) PEXT.add(extension);
             }
         }
     }
